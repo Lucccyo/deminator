@@ -17,7 +17,7 @@ def print_map(tab):
     for line in tab:
         print(' '.join(line))
 
-def create_map(size):
+def create_random_map(size):
     map = []
     for i in range(0, size):
         width  = random.randint(math.floor(size/2) + 1, size)
@@ -37,6 +37,22 @@ def create_map(size):
 
 def is_number(map, l, c):
     return l >= 0 and l < len(map) and map[l][c] != ' ' and map[l][c] != '+'
+
+
+def create_square_map(size):
+    map = []
+    for i in range(size):
+        line = []
+        for j in range(size):
+            line.append('0')
+        line.insert(0,' ')
+        line.append(' ')
+        map.append(line)
+    map.insert(0, [' '] * (size + 2))
+    map.append([' '] * (size + 2))
+    return map
+
+
 
 def incr_neigbours(map, l, c):
     if (is_number(map, l-1, c-1)):
@@ -101,7 +117,7 @@ def main():
     screen = pygame.display.set_mode([screen_size, screen_size])
     clock = pygame.time.Clock()
 
-    map = create_map(size)
+    map = create_square_map(size)
     map = add_mines(map, 16)
     print_map(map)
     running = True
