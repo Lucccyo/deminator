@@ -2,17 +2,17 @@ import random
 import math
 
 class Map:
+  grid = []
+
   def __init__(self, size, mines):
-    self.grid = []
     self.size = size
     self.mines = mines
-
     self.create_random_map()
 
   def create_random_map(self):
     for i in range(0, self.size):
-      width  = random.randint(math.floor(self.size/2) + 1, self.size)
-      offset = random.randint(0, math.floor(self.size/2) - 1)
+      width  = random.randint(math.floor(self.size / 2) + 1, self.size)
+      offset = random.randint(0, math.floor(self.size / 2) - 1)
       line = []
       for j in range(0, self.size):
         if (j < offset or j > width + offset):
@@ -25,17 +25,21 @@ class Map:
     self.grid.insert(0, [' '] * (self.size + 2))
     self.grid.append([' '] * (self.size + 2))
 
-    empty_coords = False
-    for i in range(self.mines):
-      l, c = 0, 0
-      while not empty_coords:
-        l = random.randint(0, len(self.grid) - 1)
-        c = random.randint(0, len(self.grid[l]) - 1)
-        i = ord(self.grid[l][c])
-        empty_coords = (i >= 48 and i <= 57)
-      self.grid[l][c] = '+'
-      self.incr_neighbours(l, c)
-      empty_coords = False
+    available_positions = []
+    for i in range(1, self.size + 1):
+      for j in range(1, self.size + 1):
+        if (self.grid[i][j] == '0'):
+          available_positions.append((i, j))
+
+    if (len(available_positions) < self.mines):
+      raise Exception('Not enough available positions for mines')
+
+    for i in range(0, self.mines):
+      pos = random.randint(0, len(available_positions) - 1)
+      x, y = available_positions[pos]
+      self.grid[x][y] = '+'
+      self.incr_neighbours(x, y)
+      del available_positions[pos]
 
   def incr_neighbours(self, x, y):
     for i in range(-1, 2):
