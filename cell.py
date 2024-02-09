@@ -1,3 +1,3 @@
 class Cell:
-  discovered = False
+  state = 0
   value = 0
