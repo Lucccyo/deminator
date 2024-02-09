@@ -8,16 +8,16 @@ from constants import *
 tile_cache = {}
 
 def get_tile(tile_x, tile_y):
-    """Extracts and returns a single tile from the tileset, using caching."""
-    cache_key = (tile_x, tile_y)
+  """Extracts and returns a single tile from the tileset, using caching."""
+  cache_key = (tile_x, tile_y)
 
-    if cache_key in tile_cache:
-      return tile_cache[cache_key]
+  if cache_key in tile_cache:
+    return tile_cache[cache_key]
 
-    tile = pygame.Surface((TILE_SIZE, TILE_SIZE))
-    tile.blit(tileset, (0, 0), (tile_x * TILE_SIZE, tile_y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-    tile_cache[cache_key] = tile
-    return tile
+  tile = pygame.Surface((TILE_SIZE, TILE_SIZE))
+  tile.blit(tileset, (0, 0), (tile_x * TILE_SIZE, tile_y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+  tile_cache[cache_key] = tile
+  return tile
 
 def draw_tile(screen, x, y, tile_index):
   """Draws a single tile on the screen."""
@@ -28,7 +28,10 @@ def drawGrid(screen, map):
   screen.fill(pygame.Color('black'))
   for col in range(0, GRID_SIZE + 2):
     for line in range(0, GRID_SIZE + 2):
-      draw_tile(screen, line, col, map.grid[col][line].value)
+      if map.grid[col][line].discovered:
+        draw_tile(screen, line, col, map.grid[col][line].value.value)
+      else:
+        draw_tile(screen, line, col, Tile.UNKNOWN.value)
 
 def main():
   global tileset

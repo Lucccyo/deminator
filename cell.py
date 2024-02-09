@@ -1,3 +1,9 @@
+from constants import *
+
 class Cell:
-  state = 0
-  value = 0
+  discovered = False
+  value = Tile.EMPTY
+
+  def __init__(self, value, discovered = False):
+    self.discovered = discovered
+    self.value = value

@@ -5,7 +5,7 @@ SEED = 20
 GRID_SIZE = 10
 
 # Tileset constants
-TILE_SIZE = 32
+TILE_SIZE = 64
 TILESET_WIDTH = 4
 TILESET_HEIGHT = 5
 

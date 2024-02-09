@@ -1,91 +1,77 @@
 import random
 import math
 
+from cell import Cell
 from constants import *
-
 class Map:
-  grid = []
-
   def __init__(self, size, mines):
     self.size = size
     self.mines = mines
-    self.create_random_map()
+    self.grid = []
+    self.create_square_map()
 
   def create_square_map(self):
-    """Creates a square map with the given size and number of mines."""
-    self.grid.append([Tile.WALL] * (self.size + 2))
-    for i in range(0, self.size):
-      line = []
-      line.append(Tile.WALL)
-      for j in range(0, self.size):
-        line.append(Tile.EMPTY)
-      line.append(Tile.WALL)
-      self.grid.append(line)
-    self.grid.append([Tile.WALL] * (self.size + 2))
+    """Creates a square map with the given size and number of mines, surrounded by walls."""
+    self.grid = [[Cell(Tile.WALL, True) if i == 0 or i == self.size + 1 or j == 0 or j == self.size + 1 else Cell(Tile.EMPTY) for j in range(self.size + 2)] for i in range(self.size + 2)]
 
-    available_positions = []
-    for i in range(1, self.size + 1):
-      for j in range(1, self.size + 1):
-        available_positions.append((i, j))
+    available_positions = [(i, j) for i in range(1, self.size + 1) for j in range(1, self.size + 1)]
 
-    if (len(available_positions) < self.mines):
+    if len(available_positions) < self.mines:
       raise Exception('Not enough available positions for mines')
 
-    for i in range(0, self.mines):
-      pos = random.randint(0, len(available_positions) - 1)
-      x, y = available_positions[pos]
-      self.grid[x][y] = Tile.MINE
+    for _ in range(self.mines):
+      pos = random.choice(available_positions)
+      x, y = pos
+      self.grid[x][y].value = Tile.MINE
       self.incr_neighbours(x, y)
-      del available_positions[pos]
+      available_positions.remove(pos)
 
   def create_random_map(self):
-    """Creates a random map with the given size and number of mines."""
     for i in range(0, self.size):
       width  = random.randint(math.floor(self.size / 2) + 1, self.size)
       offset = random.randint(0, math.floor(self.size / 2) - 1)
       line = []
       for j in range(0, self.size):
         if (j < offset or j > width + offset):
-          line.append(Tile.WALL)
+          line.append(Cell(Tile.WALL, True))
         else:
-          line.append(Tile.EMPTY)
-      line.insert(0, Tile.WALL)
-      line.append(Tile.WALL)
+           line.append(Cell(Tile.EMPTY))
+      line.insert(0, Cell(Tile.WALL, True))
+      line.append(Cell(Tile.WALL, True))
       self.grid.append(line)
-    self.grid.insert(0, [Tile.WALL] * (self.size + 2))
-    self.grid.append([Tile.WALL] * (self.size + 2))
+    self.grid.insert(0, [Cell(Tile.WALL, True)] * (self.size + 2))
+    self.grid.append([Cell(Tile.WALL, True)] * (self.size + 2))
 
-    available_positions = []
-    for i in range(1, self.size + 1):
-      for j in range(1, self.size + 1):
-        if (self.grid[i][j] == Tile.EMPTY):
-          available_positions.append((i, j))
+    available_positions = [(i, j) for i in range(1, self.size + 1) for j in range(1, self.size + 1)]
 
-    if (len(available_positions) < self.mines):
+    if len(available_positions) < self.mines:
       raise Exception('Not enough available positions for mines')
 
-    for i in range(0, self.mines):
-      pos = random.randint(0, len(available_positions) - 1)
-      x, y = available_positions[pos]
-      self.grid[x][y] = Tile.MINE
+    for _ in range(self.mines):
+      pos = random.choice(available_positions)
+      x, y = pos
+      self.grid[x][y].value = Tile.MINE
       self.incr_neighbours(x, y)
-      del available_positions[pos]
+      available_positions.remove(pos)
 
   def incr_neighbours(self, x, y):
     """Increments the value of the neighbours of the given cell."""
     for i in range(-1, 2):
       for j in range(-1, 2):
-        if (i == 0 and j == 0):
+        if i == 0 and j == 0:
           continue
-        l, c = x + i, y + j
-        if l >= 0 and l < len(self.grid) and self.grid[l][c] != Tile.WALL and self.grid[l][c] != Tile.MINE:
-          self.grid[x+i][y+j] = Tile(self.grid[l][c].value + 1)
+        nx, ny = x + i, y + j
+        if 0 < nx < self.size + 1 and 0 < ny < self.size + 1:
+          neighbor = self.grid[nx][ny]
+          if neighbor.value != Tile.WALL and neighbor.value != Tile.MINE:
+            neighbor.value = Tile(neighbor.value.value + 1)
 
-  def __str__(self) -> str:
+  def __str__(self):
     result = ''
     for line in self.grid:
       for cell in line:
-        result += str(cell.value) + ' '
+        char = str(cell.value.value) if cell.discovered else "X"
+        result += char + ' '
       result += '\n'
     return result
 
