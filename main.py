@@ -28,8 +28,10 @@ def drawGrid(screen, map):
   screen.fill(pygame.Color('black'))
   for col in range(0, GRID_SIZE + 2):
     for line in range(0, GRID_SIZE + 2):
-      if map.grid[col][line].discovered:
+      if map.grid[col][line].state == TileState.DISCOVERED:
         draw_tile(screen, line, col, map.grid[col][line].value.value)
+      elif map.grid[col][line].state == TileState.FLAGGED:
+        draw_tile(screen, line, col, Tile.FLAG.value)
       else:
         draw_tile(screen, line, col, Tile.UNKNOWN.value)
 
@@ -51,8 +53,20 @@ def main():
       if event.type == pygame.QUIT:
         pygame.quit()
         sys.exit()
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+        # Left mouse button click
+        if event.button == 1:
+          x, y = pygame.mouse.get_pos()
+          map.discover_tile(x, y)
+        elif event.button == 3:
+          x, y = pygame.mouse.get_pos()
+          map.toggle_flag(x, y)
 
     pygame.display.update()
+
+    # TODO: Add a game over screen instead of resetting the game
+    if map.loose:
+      map.reset();
 
 if __name__ == "__main__":
   main()

@@ -23,8 +23,13 @@ class Tile(Enum):
   NUMBER_6 = 6
   NUMBER_7 = 7
   NUMBER_8 = 8
-  MINE = 9
-  MINE_EXPLODED = 10
-  UNKNOWN = 11
-  FLAG = 12
+  MINE = 9                # Useless
+  MINE_EXPLODED = 10      # Useless
+  UNKNOWN = 11            # Useless
+  FLAG = 12               # Useless
   WALL = 13
+
+class TileState(Enum):
+  UNDISCOVERED = 0
+  DISCOVERED = 1
+  FLAGGED = 2

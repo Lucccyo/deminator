@@ -7,12 +7,20 @@ class Map:
   def __init__(self, size, mines):
     self.size = size
     self.mines = mines
+    self.discovered_mines = 0
     self.grid = []
+    self.loose = False
+    self.create_square_map()
+
+  def reset(self):
+    self.discovered_mines = 0
+    self.grid = []
+    self.loose = False
     self.create_square_map()
 
   def create_square_map(self):
     """Creates a square map with the given size and number of mines, surrounded by walls."""
-    self.grid = [[Cell(Tile.WALL, True) if i == 0 or i == self.size + 1 or j == 0 or j == self.size + 1 else Cell(Tile.EMPTY) for j in range(self.size + 2)] for i in range(self.size + 2)]
+    self.grid = [[Cell(Tile.WALL, TileState.DISCOVERED) if i == 0 or i == self.size + 1 or j == 0 or j == self.size + 1 else Cell(Tile.EMPTY) for j in range(self.size + 2)] for i in range(self.size + 2)]
 
     available_positions = [(i, j) for i in range(1, self.size + 1) for j in range(1, self.size + 1)]
 
@@ -33,14 +41,14 @@ class Map:
       line = []
       for j in range(0, self.size):
         if (j < offset or j > width + offset):
-          line.append(Cell(Tile.WALL, True))
+          line.append(Cell(Tile.WALL, TileState.DISCOVERED))
         else:
            line.append(Cell(Tile.EMPTY))
-      line.insert(0, Cell(Tile.WALL, True))
-      line.append(Cell(Tile.WALL, True))
+      line.insert(0, Cell(Tile.WALL, TileState.DISCOVERED))
+      line.append(Cell(Tile.WALL, TileState.DISCOVERED))
       self.grid.append(line)
-    self.grid.insert(0, [Cell(Tile.WALL, True)] * (self.size + 2))
-    self.grid.append([Cell(Tile.WALL, True)] * (self.size + 2))
+    self.grid.insert(0, [Cell(Tile.WALL, TileState.DISCOVERED)] * (self.size + 2))
+    self.grid.append([Cell(Tile.WALL, TileState.DISCOVERED)] * (self.size + 2))
 
     available_positions = [(i, j) for i in range(1, self.size + 1) for j in range(1, self.size + 1)]
 
@@ -66,6 +74,43 @@ class Map:
           if neighbor.value != Tile.WALL and neighbor.value != Tile.MINE:
             neighbor.value = Tile(neighbor.value.value + 1)
 
+  def discover_tile(self, x, y):
+    """Discover the tile at the given x, y screen coordinates."""
+    grid_x = x // TILE_SIZE
+    grid_y = y // TILE_SIZE
+    if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
+      self.grid[grid_y][grid_x].state = TileState.DISCOVERED
+      if self.grid[grid_y][grid_x].value == Tile.MINE:
+        self.loose = True;
+      elif self.grid[grid_y][grid_x].value == Tile.EMPTY:
+        self.discover_neighbours(grid_x, grid_y)
+
+  def discover_neighbours(self, x, y):
+    """Discover the neighbours of the given cell."""
+    for i in range(-1, 2):
+      for j in range(-1, 2):
+        nx, ny = x + i, y + j
+        if 0 < nx < self.size + 1 and 0 < ny < self.size + 1:
+          if self.grid[ny][nx].state == TileState.DISCOVERED:
+            continue
+          self.grid[ny][nx].state = TileState.DISCOVERED
+          if self.grid[ny][nx].value == Tile.EMPTY:
+            self.discover_neighbours(nx, ny)
+
+  def toggle_flag(self, x, y):
+    """Flag the tile at the given x, y screen coordinates."""
+    grid_x = x // TILE_SIZE
+    grid_y = y // TILE_SIZE
+    if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
+      if self.grid[grid_y][grid_x].state == TileState.DISCOVERED:
+        return
+      elif self.grid[grid_y][grid_x].state == TileState.FLAGGED:
+        self.grid[grid_y][grid_x].state = TileState.UNDISCOVERED
+        self.discovered_mines -= 1
+      else:
+        self.grid[grid_y][grid_x].state = TileState.FLAGGED
+        self.discovered_mines += 1
+
   def __str__(self):
     result = ''
     for line in self.grid:
@@ -74,7 +119,3 @@ class Map:
         result += char + ' '
       result += '\n'
     return result
-
-if __name__ == "__main__":
-  map = Map(20, 40)
-  print(map)
