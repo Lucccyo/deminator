@@ -28,8 +28,10 @@ class Tile(Enum):
   UNKNOWN = 11            # Useless
   FLAG = 12               # Useless
   WALL = 13
+  QUESTION = 14
 
 class TileState(Enum):
   UNDISCOVERED = 0
   DISCOVERED = 1
   FLAGGED = 2
+  QUESTION = 3

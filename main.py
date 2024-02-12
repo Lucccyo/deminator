@@ -41,6 +41,8 @@ def draw_grid(screen, map):
           draw_tile(screen, line, col, map.grid[col][line].value.value)
         elif map.grid[col][line].state == TileState.FLAGGED:
           draw_tile(screen, line, col, Tile.FLAG.value)
+        elif map.grid[col][line].state == TileState.QUESTION:
+          draw_tile(screen, line, col, Tile.QUESTION.value)
         else:
           draw_tile(screen, line, col, Tile.UNKNOWN.value)
 
