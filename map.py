@@ -135,6 +135,10 @@ class Map:
     """Check if the game is won."""
     # TODO: Should check if flagged are correct
     if self.discovered_mines == self.mines:
+      for i in range(1, self.size + 1):
+        for j in range(1, self.size + 1):
+          if self.grid[i][j].value == Tile.MINE and self.grid[i][j].state != TileState.FLAGGED or self.grid[i][j].state != TileState.DISCOVERED and self.grid[i][j].value != Tile.MINE:
+            return
       self.state = 'won'
 
   def __str__(self):

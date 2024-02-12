@@ -58,12 +58,25 @@ def main():
   clock = pygame.time.Clock()
   tileset = pygame.image.load('tileset.png').convert_alpha()
   tileset = pygame.transform.scale(tileset, (TILESET_WIDTH * TILE_SIZE, TILESET_HEIGHT * TILE_SIZE))
-  map = Map(GRID_SIZE, 15)
 
   # Timer setup
   FLASHING_BOMB_EVENT = pygame.USEREVENT + 1
   pygame.time.set_timer(FLASHING_BOMB_EVENT, 1000)
   flashing_bomb = False
+
+  # Music
+  pygame.mixer.music.load('sounds/theme.mp3')
+  pygame.mixer.music.play(-1)
+  pygame.mixer.music.set_volume(0.2)
+
+  # Sound effects
+  defeat_sound = pygame.mixer.Sound('sounds/defeat.mp3')
+  defeat_played = False
+  win_sound = pygame.mixer.Sound('sounds/win.mp3')
+  win_played = False
+
+  # Game setup
+  map = Map(GRID_SIZE, 3)
 
   running = True
   while running:
@@ -82,8 +95,20 @@ def main():
       elif event.type == pygame.KEYDOWN:
         if event.key == pygame.K_SPACE:
           map.reset()
+          defeat_played = False
+          win_played = False
+          pygame.mixer.music.play(-1)
       elif event.type == FLASHING_BOMB_EVENT:
         flashing_bomb = not flashing_bomb
+
+    if map.state == 'loosed' and not defeat_played:
+      defeat_sound.play()
+      pygame.mixer.music.stop()
+      defeat_played = True
+    elif map.state == 'won' and not win_played:
+      win_sound.play()
+      pygame.mixer.music.stop()
+      win_played = True
 
     pygame.display.update()
 
