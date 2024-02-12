@@ -23,17 +23,26 @@ def draw_tile(screen, x, y, tile_index):
   """Draws a single tile on the screen."""
   screen.blit(get_tile(tile_index % TILESET_WIDTH, tile_index // TILESET_WIDTH), (x * TILE_SIZE, y * TILE_SIZE))
 
-def drawGrid(screen, map):
+def draw_grid(screen, map):
   """Draws the entire grid on the screen."""
   screen.fill(pygame.Color('black'))
   for col in range(0, GRID_SIZE + 2):
     for line in range(0, GRID_SIZE + 2):
-      if map.grid[col][line].state == TileState.DISCOVERED:
+      # TODO: make this better
+      if map.state == 'loosed':
+        if map.grid[col][line].value == Tile.MINE:
+          draw_tile(screen, line, col, Tile.MINE_EXPLODED.value)
+        else:
+          draw_tile(screen, line, col, map.grid[col][line].value.value)
+      elif map.state == 'won':
         draw_tile(screen, line, col, map.grid[col][line].value.value)
-      elif map.grid[col][line].state == TileState.FLAGGED:
-        draw_tile(screen, line, col, Tile.FLAG.value)
       else:
-        draw_tile(screen, line, col, Tile.UNKNOWN.value)
+        if map.grid[col][line].state == TileState.DISCOVERED:
+          draw_tile(screen, line, col, map.grid[col][line].value.value)
+        elif map.grid[col][line].state == TileState.FLAGGED:
+          draw_tile(screen, line, col, Tile.FLAG.value)
+        else:
+          draw_tile(screen, line, col, Tile.UNKNOWN.value)
 
 def main():
   global tileset
@@ -48,7 +57,7 @@ def main():
 
   running = True
   while running:
-    drawGrid(screen, map)
+    draw_grid(screen, map)
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         pygame.quit()
@@ -65,8 +74,8 @@ def main():
     pygame.display.update()
 
     # TODO: Add a game over screen instead of resetting the game
-    if map.loose:
-      map.reset();
+    # if map.state != 'running':
+    #   map.reset();
 
 if __name__ == "__main__":
   main()

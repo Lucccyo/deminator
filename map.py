@@ -9,13 +9,13 @@ class Map:
     self.mines = mines
     self.discovered_mines = 0
     self.grid = []
-    self.loose = False
+    self.state = 'running'
     self.create_square_map()
 
   def reset(self):
     self.discovered_mines = 0
     self.grid = []
-    self.loose = False
+    self.state = 'running'
     self.create_square_map()
 
   def create_square_map(self):
@@ -79,11 +79,14 @@ class Map:
     grid_x = x // TILE_SIZE
     grid_y = y // TILE_SIZE
     if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
+      if self.grid[grid_y][grid_x].state == TileState.FLAGGED:
+        return
       self.grid[grid_y][grid_x].state = TileState.DISCOVERED
       if self.grid[grid_y][grid_x].value == Tile.MINE:
-        self.loose = True;
+        self.state = 'loosed';
       elif self.grid[grid_y][grid_x].value == Tile.EMPTY:
         self.discover_neighbours(grid_x, grid_y)
+    self.check_win()
 
   def discover_neighbours(self, x, y):
     """Discover the neighbours of the given cell."""
@@ -110,6 +113,13 @@ class Map:
       else:
         self.grid[grid_y][grid_x].state = TileState.FLAGGED
         self.discovered_mines += 1
+    self.check_win()
+
+  def check_win(self):
+    """Check if the game is won."""
+    # TODO: Should check if flagged are correct
+    if self.discovered_mines == self.mines:
+      self.state = 'won'
 
   def __str__(self):
     result = ''
