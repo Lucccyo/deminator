@@ -79,6 +79,9 @@ class Map:
     grid_x = x // TILE_SIZE
     grid_y = y // TILE_SIZE
     if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
+      if self.grid[grid_y][grid_x].state == TileState.DISCOVERED:
+        self.discover_around(grid_x, grid_y)
+        return
       if self.grid[grid_y][grid_x].state == TileState.FLAGGED:
         return
       self.grid[grid_y][grid_x].state = TileState.DISCOVERED
@@ -114,6 +117,16 @@ class Map:
         self.grid[grid_y][grid_x].state = TileState.FLAGGED
         self.discovered_mines += 1
     self.check_win()
+
+  def discover_around(self, x, y):
+    """Discover the neighbours of the given cell."""
+    for i in range(-1, 2):
+      for j in range(-1, 2):
+        nx, ny = x + i, y + j
+        if self.grid[ny][nx].state == TileState.UNDISCOVERED:
+          self.grid[ny][nx].state = TileState.DISCOVERED
+          if self.grid[ny][nx].value == Tile.MINE:
+            self.state = 'loosed'
 
   def check_win(self):
     """Check if the game is won."""
