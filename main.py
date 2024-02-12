@@ -31,7 +31,10 @@ def draw_grid(screen, map):
       # TODO: make this better
       if map.state == 'loosed':
         if map.grid[col][line].value == Tile.MINE:
-          draw_tile(screen, line, col, Tile.MINE_EXPLODED.value)
+          if flashing_bomb:
+            draw_tile(screen, line, col, Tile.MINE_EXPLODED.value)
+          else:
+            draw_tile(screen, line, col, Tile.MINE.value)
         else:
           draw_tile(screen, line, col, map.grid[col][line].value.value)
       elif map.state == 'won':
@@ -47,7 +50,7 @@ def draw_grid(screen, map):
           draw_tile(screen, line, col, Tile.UNKNOWN.value)
 
 def main():
-  global tileset
+  global tileset, flashing_bomb
 
   random.seed(SEED)
   pygame.init()
@@ -57,6 +60,11 @@ def main():
   tileset = pygame.transform.scale(tileset, (TILESET_WIDTH * TILE_SIZE, TILESET_HEIGHT * TILE_SIZE))
   map = Map(GRID_SIZE, 15)
 
+  # Timer setup
+  FLASHING_BOMB_EVENT = pygame.USEREVENT + 1
+  pygame.time.set_timer(FLASHING_BOMB_EVENT, 1000)
+  flashing_bomb = False
+
   running = True
   while running:
     draw_grid(screen, map)
@@ -65,19 +73,19 @@ def main():
         pygame.quit()
         sys.exit()
       elif event.type == pygame.MOUSEBUTTONDOWN:
-        # Left mouse button click
         if event.button == 1:
           x, y = pygame.mouse.get_pos()
           map.discover_tile(x, y)
         elif event.button == 3:
           x, y = pygame.mouse.get_pos()
           map.toggle_flag(x, y)
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE:
+          map.reset()
+      elif event.type == FLASHING_BOMB_EVENT:
+        flashing_bomb = not flashing_bomb
 
     pygame.display.update()
-
-    # TODO: Add a game over screen instead of resetting the game
-    # if map.state != 'running':
-    #   map.reset();
 
 if __name__ == "__main__":
   main()
