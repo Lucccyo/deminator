@@ -1,16 +1,18 @@
 from enum import Enum
 
+# Graphical constants
+UI_SIZE = 100
+SCREEN_SIZE = [880, 880 + UI_SIZE]
+
 # Grid generation
 SEED = 20
-GRID_SIZE = 10
+GRID_SIZE = 20 # TODO: Determine in a menu later
 
 # Tileset constants
-TILE_SIZE = 64
+TILE_SIZE = SCREEN_SIZE[0] // (GRID_SIZE + 2)
+print(TILE_SIZE)
 TILESET_WIDTH = 4
 TILESET_HEIGHT = 5
-
-# Graphical constants
-SCREEN_SIZE = (GRID_SIZE + 2) * TILE_SIZE
 
 # Game constants
 class Tile(Enum):

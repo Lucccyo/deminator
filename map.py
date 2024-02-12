@@ -130,6 +130,7 @@ class Map:
             self.grid[ny][nx].state = TileState.DISCOVERED
             if self.grid[ny][nx].value == Tile.MINE:
               self.state = 'loosed'
+    self.check_win()
 
   def check_win(self):
     """Check if the game is won."""
