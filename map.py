@@ -3,10 +3,13 @@ import math
 
 from cell import Cell
 from constants import *
+
 class Map:
+
   def __init__(self, size, mines):
     self.size = size
     self.mines = mines
+    self.discovered_neighbours = []
     self.discovered_mines = 0
     self.grid = []
     self.state = 'running'
@@ -89,6 +92,9 @@ class Map:
 
   def discover_neighbours(self, x, y):
     """Discover the neighbours of the given cell."""
+    if (x, y) in self.discovered_neighbours:
+      return
+    self.discovered_neighbours.append((x, y))
     for i in range(-1, 2):
       for j in range(-1, 2):
         nx, ny = x + i, y + j

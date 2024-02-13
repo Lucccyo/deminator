@@ -7,6 +7,7 @@ SCREEN_SIZE = [880, 880 + UI_SIZE]
 # Grid generation
 SEED = 20
 GRID_SIZE = 20 # TODO: Determine in a menu later
+MINE_AMOUNT = 35
 
 # Tileset constants
 TILE_SIZE = SCREEN_SIZE[0] // (GRID_SIZE + 2)

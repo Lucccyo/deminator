@@ -114,7 +114,7 @@ def main():
   solver = False
 
   # Game setup
-  map = Map(GRID_SIZE, 25)
+  map = Map(GRID_SIZE, MINE_AMOUNT)
 
   running = True
   while running:
