@@ -11,12 +11,10 @@ class Map:
     self.grid = []
     self.state = 'running'
     self.create_square_map()
+    self.discover_first_tile()
 
   def reset(self):
-    self.discovered_mines = 0
-    self.grid = []
-    self.state = 'running'
-    self.create_square_map()
+    self.__init__(self.size, self.mines)
 
   def create_square_map(self):
     """Creates a square map with the given size and number of mines, surrounded by walls."""
@@ -76,19 +74,17 @@ class Map:
 
   def discover_tile(self, x, y):
     """Discover the tile at the given x, y screen coordinates."""
-    grid_x = x // TILE_SIZE
-    grid_y = y // TILE_SIZE
-    if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
-      if self.grid[grid_y][grid_x].state == TileState.DISCOVERED:
-        self.discover_around(grid_x, grid_y)
+    if 0 <= x < self.size + 2 and 0 <= y < self.size + 2:
+      if self.grid[y][x].state == TileState.DISCOVERED:
+        self.discover_around(x, y)
         return
-      if self.grid[grid_y][grid_x].state == TileState.FLAGGED:
+      if self.grid[y][x].state == TileState.FLAGGED:
         return
-      self.grid[grid_y][grid_x].state = TileState.DISCOVERED
-      if self.grid[grid_y][grid_x].value == Tile.MINE:
+      self.grid[y][x].state = TileState.DISCOVERED
+      if self.grid[y][x].value == Tile.MINE:
         self.state = 'loosed';
-      elif self.grid[grid_y][grid_x].value == Tile.EMPTY:
-        self.discover_neighbours(grid_x, grid_y)
+      elif self.grid[y][x].value == Tile.EMPTY:
+        self.discover_neighbours(x, y)
     self.check_win()
 
   def discover_neighbours(self, x, y):
@@ -105,18 +101,16 @@ class Map:
 
   def toggle_flag(self, x, y):
     """Flag the tile at the given x, y screen coordinates."""
-    grid_x = x // TILE_SIZE
-    grid_y = y // TILE_SIZE
-    if 0 <= grid_x < self.size + 2 and 0 <= grid_y < self.size + 2:
-      if self.grid[grid_y][grid_x].state == TileState.DISCOVERED:
+    if 0 <= x < self.size + 2 and 0 <= y < self.size + 2:
+      if self.grid[y][x].state == TileState.DISCOVERED:
         return
-      elif self.grid[grid_y][grid_x].state == TileState.FLAGGED:
-        self.grid[grid_y][grid_x].state = TileState.QUESTION
+      elif self.grid[y][x].state == TileState.FLAGGED:
+        self.grid[y][x].state = TileState.QUESTION
         self.discovered_mines -= 1
-      elif self.grid[grid_y][grid_x].state == TileState.QUESTION:
-        self.grid[grid_y][grid_x].state = TileState.UNDISCOVERED
+      elif self.grid[y][x].state == TileState.QUESTION:
+        self.grid[y][x].state = TileState.UNDISCOVERED
       else:
-        self.grid[grid_y][grid_x].state = TileState.FLAGGED
+        self.grid[y][x].state = TileState.FLAGGED
         self.discovered_mines += 1
     self.check_win()
 
@@ -134,13 +128,22 @@ class Map:
 
   def check_win(self):
     """Check if the game is won."""
-    # TODO: Should check if flagged are correct
     if self.discovered_mines == self.mines:
       for i in range(1, self.size + 1):
         for j in range(1, self.size + 1):
           if self.grid[i][j].value == Tile.MINE and self.grid[i][j].state != TileState.FLAGGED or self.grid[i][j].state != TileState.DISCOVERED and self.grid[i][j].value != Tile.MINE:
             return
       self.state = 'won'
+
+  def discover_first_tile(self):
+    """Discover the first tile of the game."""
+    possible_positions = []
+    for i in range(1, self.size + 1):
+      for j in range(1, self.size + 1):
+        if self.grid[i][j].value == Tile.EMPTY:
+          possible_positions.append((i, j))
+    x, y = random.choice(possible_positions)
+    self.discover_tile(y, x)
 
   def __str__(self):
     result = ''

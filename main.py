@@ -3,7 +3,9 @@ import random
 import sys
 
 from map import Map
+from solver import *
 from constants import *
+
 
 tile_cache = {}
 
@@ -108,8 +110,11 @@ def main():
   win_sound = pygame.mixer.Sound('sounds/win.mp3')
   win_played = False
 
+  # AI Solver
+  solver = False
+
   # Game setup
-  map = Map(GRID_SIZE, 2)
+  map = Map(GRID_SIZE, 25)
 
   running = True
   while running:
@@ -127,16 +132,28 @@ def main():
           win_played = False
           pygame.mixer.music.play(-1)
         elif solve_button.collidepoint(x, y):
-          # TODO: Make the ai solver
-          pass
+          solver = not solver
         if event.button == 1:
           x, y = pygame.mouse.get_pos()
-          map.discover_tile(x, y)
+          sx, sy = x // TILE_SIZE, y // TILE_SIZE
+          map.discover_tile(sx, sy)
         elif event.button == 3:
           x, y = pygame.mouse.get_pos()
-          map.toggle_flag(x, y)
+          sx, sy = x // TILE_SIZE, y // TILE_SIZE
+          map.toggle_flag(sx, sy)
       elif event.type == FLASHING_BOMB_EVENT:
         flashing_bomb = not flashing_bomb
+
+    if solver:
+      action = solve(map)
+      if action is not None:
+        if action[1] == 'discover':
+          map.discover_tile(action[0][1], action[0][0])
+        elif action[1] == 'flag':
+          map.toggle_flag(action[0][1], action[0][0])
+      else:
+        solver = False
+        print("Solver didn't find any action to take.")
 
     if map.state == 'loosed' and not defeat_played:
       defeat_sound.play()

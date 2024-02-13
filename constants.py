@@ -10,7 +10,6 @@ GRID_SIZE = 20 # TODO: Determine in a menu later
 
 # Tileset constants
 TILE_SIZE = SCREEN_SIZE[0] // (GRID_SIZE + 2)
-print(TILE_SIZE)
 TILESET_WIDTH = 4
 TILESET_HEIGHT = 5
 
