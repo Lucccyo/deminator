@@ -2,12 +2,12 @@ from enum import Enum
 
 # Graphical constants
 UI_SIZE = 100
-SCREEN_SIZE = [880, 880 + UI_SIZE]
+SCREEN_SIZE = [660, 660 + UI_SIZE]
 
 # Grid generation
 SEED = 20
 GRID_SIZE = 20 # TODO: Determine in a menu later
-MINE_AMOUNT = 35
+MINE_AMOUNT = 60
 
 # Tileset constants
 TILE_SIZE = SCREEN_SIZE[0] // (GRID_SIZE + 2)

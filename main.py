@@ -61,31 +61,34 @@ def draw_ui(screen, num_bombs, discovered_bombs):
 def draw_grid(screen, map):
   """Draws the entire grid on the screen."""
   screen.fill(pygame.Color('black'))
-  for col in range(0, GRID_SIZE + 2):
-    for line in range(0, GRID_SIZE + 2):
-      # TODO: make this better
+  for line in range(0, GRID_SIZE + 2):
+    for col in range(0, GRID_SIZE + 2):
       if map.state == 'loosed':
-        if map.grid[col][line].value == Tile.MINE:
+        if map.grid[line][col].value == Tile.MINE:
           if flashing_bomb:
-            draw_tile(screen, line, col, Tile.MINE_EXPLODED.value)
+            draw_tile(screen, col, line, Tile.MINE_EXPLODED.value)
           else:
-            draw_tile(screen, line, col, Tile.MINE.value)
+            draw_tile(screen, col, line, Tile.MINE.value)
         else:
-          draw_tile(screen, line, col, map.grid[col][line].value.value)
+          draw_tile(screen, col, line, map.grid[line][col].value.value)
       elif map.state == 'won':
-        draw_tile(screen, line, col, map.grid[col][line].value.value)
+        draw_tile(screen, col, line, map.grid[line][col].value.value)
       else:
-        if map.grid[col][line].state == TileState.DISCOVERED:
-          draw_tile(screen, line, col, map.grid[col][line].value.value)
-        elif map.grid[col][line].state == TileState.FLAGGED:
-          draw_tile(screen, line, col, Tile.FLAG.value)
-        elif map.grid[col][line].state == TileState.QUESTION:
-          draw_tile(screen, line, col, Tile.QUESTION.value)
+        if map.grid[line][col].state == TileState.DISCOVERED:
+          draw_tile(screen, col, line, map.grid[line][col].value.value)
+        elif map.grid[line][col].state == TileState.FLAGGED:
+          draw_tile(screen, col, line, Tile.FLAG.value)
+        elif map.grid[line][col].state == TileState.QUESTION:
+          draw_tile(screen, col, line, Tile.QUESTION.value)
         else:
-          draw_tile(screen, line, col, Tile.UNKNOWN.value)
+          draw_tile(screen, col, line, Tile.UNKNOWN.value)
+
+def draw_selected_tile(screen, x, y):
+  """Draws a red rectangle around the selected tile."""
+  pygame.draw.rect(screen, pygame.Color('red'), (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), 2)
 
 def main():
-  global tileset, flashing_bomb
+  global tileset, flashing_bomb, selected_tile
 
   random.seed(SEED)
   pygame.init()
@@ -116,10 +119,13 @@ def main():
   # Game setup
   map = Map(GRID_SIZE, MINE_AMOUNT)
 
+  selected_tile = (1, 1)
+
   running = True
   while running:
     draw_grid(screen, map)
     draw_ui(screen, map.mines, map.discovered_mines)
+    draw_selected_tile(screen, selected_tile[0], selected_tile[1])
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         pygame.quit()
@@ -143,6 +149,19 @@ def main():
           map.toggle_flag(sx, sy)
       elif event.type == FLASHING_BOMB_EVENT:
         flashing_bomb = not flashing_bomb
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_LEFT:
+          selected_tile = (max(1, selected_tile[0] - 1), selected_tile[1])
+        elif event.key == pygame.K_RIGHT:
+          selected_tile = (min(GRID_SIZE, selected_tile[0] + 1), selected_tile[1])
+        elif event.key == pygame.K_UP:
+          selected_tile = (selected_tile[0], max(1, selected_tile[1] - 1))
+        elif event.key == pygame.K_DOWN:
+          selected_tile = (selected_tile[0], min(GRID_SIZE, selected_tile[1] + 1))
+        elif event.key == pygame.K_RETURN:
+          map.discover_tile(selected_tile[0], selected_tile[1])
+        elif event.key == pygame.K_SPACE:
+          map.toggle_flag(selected_tile[0], selected_tile[1])
 
     if solver:
       action = solve(map)
