@@ -158,10 +158,10 @@ def main():
           selected_tile = (selected_tile[0], max(1, selected_tile[1] - 1))
         elif event.key == pygame.K_DOWN:
           selected_tile = (selected_tile[0], min(GRID_SIZE, selected_tile[1] + 1))
-        elif event.key == pygame.K_RETURN:
-          map.discover_tile(selected_tile[0], selected_tile[1])
-        elif event.key == pygame.K_SPACE:
+        elif event.key == pygame.K_LCTRL:
           map.toggle_flag(selected_tile[0], selected_tile[1])
+        elif event.key == pygame.K_SPACE:
+          map.discover_tile(selected_tile[0], selected_tile[1])
 
     if solver:
       action = solve(map)
